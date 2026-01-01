@@ -17,6 +17,7 @@ export function ArtistPage() {
   const { styles, loading, error } = useStyles();
   const { t } = useI18n();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   // Find the artist by slug
   const artist = styles.find((style: Style) => {

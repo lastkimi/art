@@ -1,5 +1,4 @@
 import { useEffect, useState, useRef } from 'react';
-import { useNavigate } from 'react-router-dom';
 import type { Style } from '../types';
 import { useI18n } from '../i18n/context';
 import { useSwipe } from '../hooks/useSwipe';
@@ -19,11 +18,12 @@ interface ImageModalProps {
 
 export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, onNavigate }: ImageModalProps) {
   const { t } = useI18n();
-  const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
   const [showButtons, setShowButtons] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showZoomModal, setShowZoomModal] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+  const [showToast, setShowToast] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 

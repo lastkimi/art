@@ -11,6 +11,8 @@ export const translations = {
     
     // Modal
     nameCopied: 'Artist name copied to clipboard',
+    promptCopied: 'Prompt copied',
+    clickToCopy: 'Click to copy',
     examplePrompts: 'Example Prompts',
     examplePrompt1En: 'a portrait of a character in a scenic environment by {name}',
     examplePrompt1Zh: '{name} 风格的户外场景的肖像画',
@@ -37,6 +39,8 @@ export const translations = {
     
     // Modal
     nameCopied: '艺术家名称已复制到剪贴板',
+    promptCopied: '提示词已复制',
+    clickToCopy: '点击复制',
     examplePrompts: '示例提示词',
     examplePrompt1En: 'a portrait of a character in a scenic environment by {name}',
     examplePrompt1Zh: '{name} 风格的户外场景的肖像画',

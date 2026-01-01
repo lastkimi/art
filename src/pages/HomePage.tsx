@@ -24,6 +24,7 @@ export function HomePage() {
 
   // Filter styles by search query
   const filteredStyles = useMemo(() => {
+    if (loading) return [];
     if (!searchQuery.trim()) {
       return styles;
     }
@@ -101,22 +102,6 @@ export function HomePage() {
     ? currentStylesList[selectedStyleIndex]
     : null;
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-gray-600 text-xl">{t('loading')}</div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-white">
-        <div className="text-red-600 text-xl">{t('errorLoading')}{error.message}</div>
-      </div>
-    );
-  }
-
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <SEO
@@ -139,7 +124,15 @@ export function HomePage() {
         />
       )}
       <div className="flex-1">
-        {activeTab === 'all' ? (
+        {loading ? (
+          <div className="flex items-center justify-center py-40">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-gray-900"></div>
+          </div>
+        ) : error ? (
+          <div className="flex items-center justify-center py-20">
+            <div className="text-red-600 text-xl">{t('errorLoading')}{error.message}</div>
+          </div>
+        ) : activeTab === 'all' ? (
           <AllGrid styles={filteredStyles} onImageClick={handleImageClick} />
         ) : (
           <AZGrid 

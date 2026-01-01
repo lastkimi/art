@@ -24,6 +24,7 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
   const [showZoomModal, setShowZoomModal] = useState(false);
   const [toastMessage, setToastMessage] = useState('');
   const [showToast, setShowToast] = useState(false);
+  const [isPaused, setIsPaused] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -60,24 +61,17 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
     setCurrentImageIndex(0);
   }, [style]);
 
-  // Auto-rotate images on mobile
+  // Auto-rotate images
   useEffect(() => {
-    // Only auto-rotate if there are multiple images and we are on mobile (window check or just default behavior)
-    // Simplified: auto-rotate if stylesList length > 1 (Wait, this is for switching images of same artist)
-    // User requirement: "移动端自动轮播图片" -> Likely refers to the 2 images of the same artist.
-    
     if (!style?.imageUrl2 && !style?.proxyImageUrl2) return;
-
-    // Check if mobile (screen width < 768px)
-    const isMobile = window.innerWidth < 768;
-    if (!isMobile) return;
+    if (isPaused) return;
 
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev === 0 ? 1 : 0));
     }, 3000);
-
+    
     return () => clearInterval(interval);
-  }, [style, currentImageIndex]); // Depend on style to reset, currentImageIndex not needed in dependency if functional update used, but style change should reset timer.
+  }, [style, currentImageIndex, isPaused]);
 
   const handleCopy = (text: string, isName: boolean = false) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -285,6 +279,8 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
               data-image-container
               className="relative w-full h-[50vh] md:h-[65vh] bg-gray-100 flex items-center justify-center flex-shrink-0 cursor-zoom-in group touch-pan-y"
               onClick={handleImageClick}
+              onMouseEnter={() => setIsPaused(true)}
+              onMouseLeave={() => setIsPaused(false)}
               {...swipeHandlers}
             >
               <ImageWithFallback

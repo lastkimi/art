@@ -3,9 +3,10 @@ import { useI18n } from '../i18n/context';
 interface CategoryTabsProps {
   activeTab: 'all' | 'az';
   onTabChange: (tab: 'all' | 'az') => void;
+  onRandom: () => void;
 }
 
-export function CategoryTabs({ activeTab, onTabChange }: CategoryTabsProps) {
+export function CategoryTabs({ activeTab, onTabChange, onRandom }: CategoryTabsProps) {
   const { t } = useI18n();
 
   return (
@@ -33,6 +34,12 @@ export function CategoryTabs({ activeTab, onTabChange }: CategoryTabsProps) {
               }`}
             >
               {t('az')}
+            </button>
+            <button
+              onClick={onRandom}
+              className="px-4 py-2 text-sm font-medium text-gray-600 hover:text-gray-900 transition-colors"
+            >
+              {t('random')}
             </button>
           </div>
         </div>

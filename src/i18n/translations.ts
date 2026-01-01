@@ -1,13 +1,14 @@
 export const translations = {
   en: {
     // Header
-    siteTitle: 'Art Styles Gallery - 艺术风格画廊',
+    siteTitle: 'Art Styles Gallery',
     searchPlaceholder: 'Search artists...',
     
     // Tabs
     artists: 'Artists',
     all: 'All',
     az: 'A-Z',
+    random: 'Random',
     
     // Modal
     nameCopied: 'Artist name copied to clipboard',
@@ -31,13 +32,14 @@ export const translations = {
   },
   zh: {
     // Header
-    siteTitle: '艺术风格画廊 - Art Styles Gallery',
+    siteTitle: '艺术风格画廊',
     searchPlaceholder: '搜索艺术家...',
     
     // Tabs
     artists: '艺术家',
     all: '全部',
     az: 'A-Z',
+    random: '随机',
     
     // Modal
     nameCopied: '艺术家名称已复制到剪贴板',

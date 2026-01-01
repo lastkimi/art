@@ -21,6 +21,8 @@ export function HomePage() {
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedStyleIndex, setSelectedStyleIndex] = useState<number>(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [page, setPage] = useState(1);
+  const ITEMS_PER_PAGE = 100;
 
   // Filter styles by search query
   const filteredStyles = useMemo(() => {
@@ -52,11 +54,27 @@ export function HomePage() {
     }
   }, [activeTab, filteredStyles, selectedLetter]);
 
-  // Group styles by letter for A-Z view
-  const groupedStyles = useMemo(() => {
-    return groupStylesByLetter(filteredStyles);
-  }, [filteredStyles]);
+  // Reset page when filters change
+  useMemo(() => {
+    setPage(1);
+  }, [searchQuery, activeTab, selectedLetter]);
 
+  // Get paginated styles
+  const paginatedStyles = useMemo(() => {
+    const startIndex = (page - 1) * ITEMS_PER_PAGE;
+    return currentStylesList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
+  }, [currentStylesList, page]);
+
+  // Group styles by letter for A-Z view (paginated)
+  const paginatedGroupedStyles = useMemo(() => {
+    return groupStylesByLetter(paginatedStyles);
+  }, [paginatedStyles]);
+
+  // Group styles by letter for A-Z view (full list for AlphaFilter letters)
+  // groupedStyles is not used for rendering grid anymore, paginatedGroupedStyles is used.
+  // But we need full list grouped for something? No, AlphaFilter uses availableLetters which uses filteredStyles.
+  // So groupedStyles is indeed unused.
+  
   // Get available letters for filter
   const availableLetters = useMemo(() => {
     return getAvailableLetters(filteredStyles);

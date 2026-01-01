@@ -276,59 +276,7 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
             </svg>
           </button>
 
-          {/* Navigation buttons */}
-          {stylesList.length > 1 && (
-            <>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNavigate('prev');
-                }}
-                className={`absolute left-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-300 ${
-                  showButtons ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}
-                aria-label="Previous"
-              >
-                <svg
-                  className="w-6 h-6 text-gray-900"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M15 19l-7-7 7-7"
-                  />
-                </svg>
-              </button>
-              <button
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onNavigate('next');
-                }}
-                className={`absolute right-4 top-1/2 -translate-y-1/2 z-10 p-3 bg-white/90 hover:bg-white rounded-full shadow-lg transition-all duration-300 ${
-                  showButtons ? 'opacity-100' : 'opacity-0 pointer-events-none'
-                }`}
-                aria-label="Next"
-              >
-                <svg
-                  className="w-6 h-6 text-gray-900"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M9 5l7 7-7 7"
-                  />
-                </svg>
-              </button>
-            </>
-          )}
+          {/* Navigation buttons removed from here (absolute positioning) */}
 
           {/* Image container - scrollable */}
           <div className="bg-white rounded-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
@@ -345,26 +293,7 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
                   alt={`${style.name} - Image ${currentImageIndex + 1}`}
                   className="w-full h-full object-contain"
                 />
-              {/* Zoom icon overlay */}
-                <div className="absolute inset-0 flex items-center justify-center bg-black/0 group-hover:bg-black/20 transition-colors pointer-events-none">
-                  <div className="opacity-0 group-hover:opacity-100 transition-opacity">
-                    <div className="bg-white/90 backdrop-blur-sm rounded-full p-4 shadow-lg">
-                      <svg
-                        className="w-8 h-8 text-gray-900"
-                        fill="none"
-                        stroke="currentColor"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          strokeLinecap="round"
-                          strokeLinejoin="round"
-                          strokeWidth={2}
-                          d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0zM10 7v3m0 0v3m0-3h3m-3 0H7"
-                        />
-                      </svg>
-                    </div>
-                  </div>
-                </div>
+              {/* Zoom icon overlay removed */}
               </div>
             </div>
 
@@ -387,8 +316,8 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
               ))}
             </div>
 
-            {/* Mobile Navigation Controls */}
-            <div className="flex md:hidden justify-between items-center px-6 py-4 border-b border-gray-100">
+            {/* Mobile Navigation Controls - Now visible on all screens */}
+            <div className="flex justify-between items-center px-6 py-4 border-b border-gray-100">
               <button
                 onClick={(e) => {
                   e.stopPropagation();

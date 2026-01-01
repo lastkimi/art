@@ -1,15 +1,23 @@
-/* App-specific styles */
-#root {
-  width: 100%;
-  min-height: 100vh;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Performance Optimization for long lists */
+.artist-card-container {
+  content-visibility: auto; /* Skips rendering for off-screen content */
+  contain-intrinsic-size: 300px; /* Placeholder height estimation */
 }
 
-/* Hide scrollbar for horizontal scroll */
-.scrollbar-hide {
-  -ms-overflow-style: none;
-  scrollbar-width: none;
+/* Ensure smooth scrolling */
+html {
+  scroll-behavior: smooth;
 }
 
+/* Hide scrollbar for clean look but keep functionality */
 .scrollbar-hide::-webkit-scrollbar {
-  display: none;
+    display: none;
+}
+.scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
 }

@@ -21,7 +21,7 @@ export function HomePage() {
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedStyleIndex, setSelectedStyleIndex] = useState<number>(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [visibleCount, setVisibleCount] = useState(60);
+  const [visibleCount, setVisibleCount] = useState(100); // Increased for desktop screens
   const loaderRef = useRef<HTMLDivElement>(null);
 
   // Filter styles by search query
@@ -56,7 +56,7 @@ export function HomePage() {
 
   // Reset visible count when filters change
   useEffect(() => {
-    setVisibleCount(60);
+    setVisibleCount(100);
     window.scrollTo({ top: 0, behavior: 'instant' });
   }, [searchQuery, activeTab, selectedLetter]);
 
@@ -64,14 +64,14 @@ export function HomePage() {
   const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
     const target = entries[0];
     if (target.isIntersecting) {
-      setVisibleCount((prev) => prev + 60);
+      setVisibleCount((prev) => prev + 100);
     }
   }, []);
 
   useEffect(() => {
     const option = {
       root: null,
-      rootMargin: "500px",
+      rootMargin: "1000px", // Preload earlier
       threshold: 0
     };
     const observer = new IntersectionObserver(handleObserver, option);

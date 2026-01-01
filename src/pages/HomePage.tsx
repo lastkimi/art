@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect, useRef, useCallback } from 'react';
 import { useStyles } from '../hooks/useStyles';
 import { GACHeader } from '../components/GACHeader';
 import { CategoryTabs } from '../components/CategoryTabs';
@@ -21,6 +21,8 @@ export function HomePage() {
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedStyleIndex, setSelectedStyleIndex] = useState<number>(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [visibleCount, setVisibleCount] = useState(60);
+  const loaderRef = useRef<HTMLDivElement>(null);
 
   // Filter styles by search query
   const filteredStyles = useMemo(() => {
@@ -52,6 +54,34 @@ export function HomePage() {
     }
   }, [activeTab, filteredStyles, selectedLetter]);
 
+  // Reset visible count when filters change
+  useEffect(() => {
+    setVisibleCount(60);
+    window.scrollTo({ top: 0, behavior: 'instant' });
+  }, [searchQuery, activeTab, selectedLetter]);
+
+  // Infinite scroll observer
+  const handleObserver = useCallback((entries: IntersectionObserverEntry[]) => {
+    const target = entries[0];
+    if (target.isIntersecting) {
+      setVisibleCount((prev) => prev + 60);
+    }
+  }, []);
+
+  useEffect(() => {
+    const option = {
+      root: null,
+      rootMargin: "500px",
+      threshold: 0
+    };
+    const observer = new IntersectionObserver(handleObserver, option);
+    if (loaderRef.current) observer.observe(loaderRef.current);
+    
+    return () => {
+      if (loaderRef.current) observer.unobserve(loaderRef.current);
+    }
+  }, [handleObserver]);
+
   // Group styles by letter for A-Z view
   const groupedStyles = useMemo(() => {
     return groupStylesByLetter(currentStylesList);
@@ -68,6 +98,14 @@ export function HomePage() {
     if (tab === 'all') {
       setSelectedLetter(null);
     }
+  };
+
+  // Handle random style selection
+  const handleRandomStyle = () => {
+    if (filteredStyles.length === 0) return;
+    const randomIndex = Math.floor(Math.random() * filteredStyles.length);
+    const randomStyle = filteredStyles[randomIndex];
+    handleImageClick(randomStyle);
   };
 
   // Handle image click: navigate to artist page
@@ -126,6 +164,7 @@ export function HomePage() {
       <CategoryTabs 
         activeTab={activeTab}
         onTabChange={handleTabChange}
+        onRandom={handleRandomStyle}
       />
       {activeTab === 'az' && (
         <AlphaFilter
@@ -146,7 +185,14 @@ export function HomePage() {
         ) : (
           <>
             {activeTab === 'all' ? (
-              <AllGrid styles={currentStylesList} onImageClick={handleImageClick} />
+              <>
+                <AllGrid styles={currentStylesList.slice(0, visibleCount)} onImageClick={handleImageClick} />
+                {visibleCount < currentStylesList.length && (
+                  <div ref={loaderRef} className="h-20 flex items-center justify-center p-4">
+                    <div className="w-6 h-6 border-2 border-gray-200 border-t-gray-500 rounded-full animate-spin"></div>
+                  </div>
+                )}
+              </>
             ) : (
               <AZGrid 
                 groupedStyles={groupedStyles} 

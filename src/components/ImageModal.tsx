@@ -2,6 +2,7 @@ import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import type { Style } from '../types';
 import { useI18n } from '../i18n/context';
+import { useSwipe } from '../hooks/useSwipe';
 import { ImageWithFallback } from './ImageWithFallback';
 import { ImageZoomModal } from './ImageZoomModal';
 import { getArtistUrl } from '../utils/seo';
@@ -24,6 +25,34 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
   const [showZoomModal, setShowZoomModal] = useState(false);
   const timeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
+
+  // Swipe handlers for mobile navigation
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: () => {
+      // Show next image (if available)
+      if (currentImageIndex === 0 && (style?.imageUrl2 || style?.proxyImageUrl2)) {
+        setCurrentImageIndex(1);
+      }
+    },
+    onSwipeRight: () => {
+      // Show prev image
+      if (currentImageIndex === 1) {
+        setCurrentImageIndex(0);
+      }
+    },
+    onSwipeUp: () => {
+      // Swipe Up -> Drag content up -> Reveal next item
+      if (stylesList.length > 1) {
+        onNavigate('next');
+      }
+    },
+    onSwipeDown: () => {
+      // Swipe Down -> Drag content down -> Reveal prev item
+      if (stylesList.length > 1) {
+        onNavigate('prev');
+      }
+    }
+  });
 
   // Reset image index when style changes
   useEffect(() => {
@@ -271,12 +300,13 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
           {/* Image container - scrollable */}
           <div className="bg-white rounded-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
             <div className="relative group">
-              <div 
-                data-image-container
-                className="relative w-full h-[50vh] md:h-[65vh] bg-gray-100 flex items-center justify-center flex-shrink-0 cursor-zoom-in group"
-                onClick={handleImageClick}
-              >
-                <ImageWithFallback
+            <div 
+              data-image-container
+              className="relative w-full h-[50vh] md:h-[65vh] bg-gray-100 flex items-center justify-center flex-shrink-0 cursor-zoom-in group touch-pan-y"
+              onClick={handleImageClick}
+              {...swipeHandlers}
+            >
+              <ImageWithFallback
                   src={currentImageIndex === 0 ? style.proxyImageUrl : (style.proxyImageUrl2 || style.proxyImageUrl)}
                   fallbackSrcs={currentImageIndex === 0 ? fallbacks : (style.imageUrl2 ? [style.imageUrl2] : fallbacks)}
                   alt={`${style.name} - Image ${currentImageIndex + 1}`}
@@ -306,7 +336,7 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
             </div>
 
             {/* Dots - positioned below image */}
-            <div className="flex justify-center gap-2 mt-4">
+            <div className="hidden md:flex justify-center gap-2 mt-4">
               {[0, 1].map((index) => (
                 <button
                   key={index}

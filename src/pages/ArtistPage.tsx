@@ -8,6 +8,7 @@ import { Footer } from '../components/Footer';
 import { ImageWithFallback } from '../components/ImageWithFallback';
 import { getArtistUrl, generateSlug } from '../utils/seo';
 import { useI18n } from '../i18n/context';
+import { useSwipe } from '../hooks/useSwipe';
 import type { Style } from '../types';
 import './ArtistPage.css';
 
@@ -18,6 +19,22 @@ export function ArtistPage() {
   const { t } = useI18n();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Swipe handlers for mobile image navigation
+  const swipeHandlers = useSwipe({
+    onSwipeLeft: () => {
+      // Show next image (if available)
+      if (currentImageIndex === 0 && (artist?.imageUrl2 || artist?.proxyImageUrl2)) {
+        setCurrentImageIndex(1);
+      }
+    },
+    onSwipeRight: () => {
+      // Show prev image
+      if (currentImageIndex === 1) {
+        setCurrentImageIndex(0);
+      }
+    }
+  });
 
   // Find the artist by slug
   const artist = styles.find((style: Style) => {
@@ -108,11 +125,12 @@ export function ArtistPage() {
           <div className="p-4">
             <div className="relative group">
               <div 
-                className="relative w-full h-[50vh] md:h-[70vh] bg-gray-100 flex items-center justify-center cursor-zoom-in rounded-lg overflow-hidden"
+                className="relative w-full h-[50vh] md:h-[70vh] bg-gray-100 flex items-center justify-center cursor-zoom-in rounded-lg overflow-hidden touch-pan-y"
                 onClick={() => {
                   // Update ImageModal with current image
                   handleImageClick();
                 }}
+                {...swipeHandlers}
               >
                 <ImageWithFallback
                   src={currentImageIndex === 0 ? artist.proxyImageUrl : (artist.proxyImageUrl2 || artist.proxyImageUrl)}
@@ -142,8 +160,8 @@ export function ArtistPage() {
                 </div>
               </div>
 
-              {/* Dots */}
-              <div className="flex justify-center gap-2 mt-4">
+              {/* Dots - Hidden on mobile, visible on desktop */}
+              <div className="hidden md:flex justify-center gap-2 mt-4">
                 {[0, 1].map((index) => (
                   <button
                     key={index}

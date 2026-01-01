@@ -9,6 +9,7 @@ import { ImageWithFallback } from '../components/ImageWithFallback';
 import { getArtistUrl, generateSlug } from '../utils/seo';
 import { useI18n } from '../i18n/context';
 import { useSwipe } from '../hooks/useSwipe';
+import { Toast } from '../components/Toast';
 import type { Style } from '../types';
 import './ArtistPage.css';
 
@@ -19,6 +20,17 @@ export function ArtistPage() {
   const { t } = useI18n();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
+
+  const handleCopy = (text: string, isName: boolean = false) => {
+    navigator.clipboard.writeText(text).then(() => {
+      setToastMessage(isName ? t('nameCopied') : t('promptCopied') || '复制成功');
+      setShowToast(true);
+    }).catch((err) => {
+      console.error('Failed to copy:', err);
+    });
+  };
 
   // Swipe handlers for mobile image navigation
   const swipeHandlers = useSwipe({
@@ -183,8 +195,15 @@ export function ArtistPage() {
 
           {/* Artist Info */}
           <div className="p-6 md:p-8">
-            <h1 className="text-3xl md:text-4xl font-medium text-gray-900 mb-4">
+            <h1 
+              className="text-3xl md:text-4xl font-medium text-gray-900 mb-4 cursor-pointer hover:text-blue-600 transition-colors select-none inline-flex items-center gap-2"
+              onClick={() => handleCopy(artist.name, true)}
+              title={t('clickToCopy') || "点击复制"}
+            >
               {artist.name}
+              <svg className="w-6 h-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+              </svg>
             </h1>
 
             {artist.tags.length > 0 && (
@@ -207,19 +226,31 @@ export function ArtistPage() {
               </h2>
               <div className="space-y-3">
                 {/* English prompt 1 */}
-                <div className="p-4 bg-gray-50 rounded-lg">
+                <div 
+                  className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleCopy(examplePrompt1En)}
+                >
                   <p className="text-sm text-gray-700 font-mono">{examplePrompt1En}</p>
                 </div>
                 {/* Chinese prompt 1 */}
-                <div className="p-4 bg-gray-50 rounded-lg">
+                <div 
+                  className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleCopy(examplePrompt1Zh)}
+                >
                   <p className="text-sm text-gray-700">{examplePrompt1Zh}</p>
                 </div>
                 {/* English prompt 2 */}
-                <div className="p-4 bg-gray-50 rounded-lg">
+                <div 
+                  className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleCopy(examplePrompt2En)}
+                >
                   <p className="text-sm text-gray-700 font-mono">{examplePrompt2En}</p>
                 </div>
                 {/* Chinese prompt 2 */}
-                <div className="p-4 bg-gray-50 rounded-lg">
+                <div 
+                  className="p-4 bg-gray-50 rounded-lg cursor-pointer hover:bg-gray-100 transition-colors"
+                  onClick={() => handleCopy(examplePrompt2Zh)}
+                >
                   <p className="text-sm text-gray-700">{examplePrompt2Zh}</p>
                 </div>
               </div>
@@ -243,6 +274,13 @@ export function ArtistPage() {
         isOpen={isModalOpen}
         onClose={handleCloseModal}
         onNavigate={handleNavigate}
+      />
+
+      {/* Toast Notification */}
+      <Toast 
+        message={toastMessage} 
+        isVisible={showToast} 
+        onClose={() => setShowToast(false)} 
       />
     </div>
   );

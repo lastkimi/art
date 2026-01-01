@@ -6,6 +6,7 @@ import { useSwipe } from '../hooks/useSwipe';
 import { ImageWithFallback } from './ImageWithFallback';
 import { ImageZoomModal } from './ImageZoomModal';
 import { getArtistUrl } from '../utils/seo';
+import { Toast } from './Toast';
 
 interface ImageModalProps {
   style: Style | null;
@@ -59,9 +60,11 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
     setCurrentImageIndex(0);
   }, [style]);
 
-  const handleCopy = (text: string) => {
+  const handleCopy = (text: string, isName: boolean = false) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
+      setToastMessage(isName ? t('nameCopied') : t('promptCopied') || '复制成功');
+      setShowToast(true);
       setTimeout(() => setCopied(false), 2000);
     }).catch((err) => {
       console.error('Failed to copy:', err);
@@ -374,21 +377,19 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
             <div className="p-6 bg-white overflow-y-auto flex-1">
               <div className="flex items-center gap-3 mb-2">
                 <h2 
-                  className="text-2xl font-medium text-gray-900 cursor-pointer hover:text-blue-600 transition-colors"
+                  className="text-2xl font-medium text-gray-900 cursor-pointer hover:text-blue-600 transition-colors select-none"
                   onClick={(e) => {
                     e.stopPropagation();
-                    const artistUrl = getArtistUrl(style.name);
-                    navigate(artistUrl);
-                    onClose();
+                    handleCopy(style.name, true);
                   }}
-                  title="点击查看艺术家页面"
+                  title={t('clickToCopy') || "点击复制艺术家名字"}
                 >
                   {style.name}
                 </h2>
                 <button
-                  onClick={() => handleCopy(style.name)}
+                  onClick={() => handleCopy(style.name, true)}
                   className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-                  title={t('nameCopied')}
+                  title={t('clickToCopy')}
                 >
                   {copied ? (
                     <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -525,6 +526,13 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
         }}
         isOpen={showZoomModal}
         onClose={() => setShowZoomModal(false)}
+      />
+      
+      {/* Toast Notification */}
+      <Toast 
+        message={toastMessage} 
+        isVisible={showToast} 
+        onClose={() => setShowToast(false)} 
       />
     </>
   );

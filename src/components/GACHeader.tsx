@@ -18,8 +18,9 @@ export function GACHeader({ searchQuery, onSearchChange }: GACHeaderProps) {
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-6">
-            <Link to="/" className="text-xl font-normal text-gray-900 hover:text-gray-700 transition-colors">
-              {t('siteTitle')}
+            <Link to="/" className="flex items-center gap-3 text-xl font-normal text-gray-900 hover:text-gray-700 transition-colors">
+              <img src="/favicon.svg" alt="Logo" className="w-8 h-8" />
+              <span>{t('siteTitle')}</span>
             </Link>
             <button
               onClick={toggleLanguage}

@@ -13,7 +13,7 @@ interface ImageModalProps {
   currentIndex: number;
   isOpen: boolean;
   onClose: () => void;
-  onNavigate: (direction: 'prev' | 'next') => void;
+  onNavigate: (direction: 'prev' | 'next' | number) => void;
 }
 
 export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, onNavigate }: ImageModalProps) {
@@ -60,6 +60,25 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
     setCurrentImageIndex(0);
   }, [style]);
 
+  // Auto-rotate images on mobile
+  useEffect(() => {
+    // Only auto-rotate if there are multiple images and we are on mobile (window check or just default behavior)
+    // Simplified: auto-rotate if stylesList length > 1 (Wait, this is for switching images of same artist)
+    // User requirement: "移动端自动轮播图片" -> Likely refers to the 2 images of the same artist.
+    
+    if (!style?.imageUrl2 && !style?.proxyImageUrl2) return;
+
+    // Check if mobile (screen width < 768px)
+    const isMobile = window.innerWidth < 768;
+    if (!isMobile) return;
+
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev === 0 ? 1 : 0));
+    }, 3000);
+
+    return () => clearInterval(interval);
+  }, [style, currentImageIndex]); // Depend on style to reset, currentImageIndex not needed in dependency if functional update used, but style change should reset timer.
+
   const handleCopy = (text: string, isName: boolean = false) => {
     navigator.clipboard.writeText(text).then(() => {
       setCopied(true);
@@ -94,6 +113,33 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
       // User cancelled or error occurred
       console.error('Error sharing:', err);
     }
+  };
+
+  // Handle random artist navigation
+  const handleRandom = () => {
+    if (stylesList.length <= 1) return;
+    let randomIndex = Math.floor(Math.random() * stylesList.length);
+    // Ensure we don't pick the same artist
+    while (randomIndex === currentIndex) {
+      randomIndex = Math.floor(Math.random() * stylesList.length);
+    }
+    // We need to navigate to that index. But onNavigate only supports next/prev.
+    // The parent component controls currentIndex. We might need a new prop onJumpTo(index).
+    // Or we can cheat if we don't have onJumpTo... But we don't.
+    // Wait, onNavigate is simple 'prev' | 'next'.
+    // User asked for "Random Artist Button".
+    // I need to update ImageModalProps to accept `onRandom` or modify `onNavigate`.
+    // Let's check HomePage.tsx usage of ImageModal.
+  };
+
+  const handleRandom = () => {
+    if (stylesList.length <= 1) return;
+    let randomIndex = Math.floor(Math.random() * stylesList.length);
+    // Ensure we don't pick the same artist
+    while (randomIndex === currentIndex && stylesList.length > 1) {
+      randomIndex = Math.floor(Math.random() * stylesList.length);
+    }
+    onNavigate(randomIndex);
   };
 
   const handleImageClick = (e: React.MouseEvent) => {
@@ -356,50 +402,93 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
                 />
               ))}
             </div>
-            
-            {/* Share button below image */}
-            <div className="px-6 pt-4 flex-shrink-0">
+
+            {/* Mobile Navigation Controls */}
+            <div className="flex md:hidden justify-between items-center px-6 py-4 border-b border-gray-100">
               <button
                 onClick={(e) => {
                   e.stopPropagation();
-                  handleShare();
+                  onNavigate('prev');
+                }}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Previous Artist"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                </svg>
+              </button>
+              
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleRandom();
                 }}
                 className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
               >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
-                {t('share')}
+                <span>随机</span>
+              </button>
+
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onNavigate('next');
+                }}
+                className="p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-full transition-colors"
+                aria-label="Next Artist"
+              >
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                </svg>
               </button>
             </div>
             
+            {/* Share button removed from here, moved to title line */}
+            
             {/* Artist name and info - scrollable */}
             <div className="p-6 bg-white overflow-y-auto flex-1">
-              <div className="flex items-center gap-3 mb-2">
-                <h2 
-                  className="text-2xl font-medium text-gray-900 cursor-pointer hover:text-blue-600 transition-colors select-none"
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-3">
+                  <h2 
+                    className="text-2xl font-medium text-gray-900 cursor-pointer hover:text-blue-600 transition-colors select-none"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleCopy(style.name, true);
+                    }}
+                    title={t('clickToCopy') || "点击复制艺术家名字"}
+                  >
+                    {style.name}
+                  </h2>
+                  <button
+                    onClick={() => handleCopy(style.name, true)}
+                    className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
+                    title={t('clickToCopy')}
+                  >
+                    {copied ? (
+                      <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                      </svg>
+                    ) : (
+                      <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                      </svg>
+                    )}
+                  </button>
+                </div>
+
+                <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    handleCopy(style.name, true);
+                    handleShare();
                   }}
-                  title={t('clickToCopy') || "点击复制艺术家名字"}
+                  className="flex items-center gap-2 px-3 py-1.5 text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                  title={t('share')}
                 >
-                  {style.name}
-                </h2>
-                <button
-                  onClick={() => handleCopy(style.name, true)}
-                  className="p-1.5 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded transition-colors"
-                  title={t('clickToCopy')}
-                >
-                  {copied ? (
-                    <svg className="w-5 h-5 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
-                    </svg>
-                  )}
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8.684 13.342C8.886 12.938 9 12.482 9 12c0-.482-.114-.938-.316-1.342m0 2.684a3 3 0 110-2.684m0 2.684l6.632 3.316m-6.632-6l6.632-3.316m0 0a3 3 0 105.367-2.684 3 3 0 00-5.367 2.684zm0 9.316a3 3 0 105.368 2.684 3 3 0 00-5.368-2.684z" />
+                  </svg>
                 </button>
               </div>
               

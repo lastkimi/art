@@ -80,17 +80,32 @@ export function HomePage() {
   };
 
   // Handle navigation in modal
-  const handleNavigate = (direction: 'prev' | 'next') => {
+  const handleNavigate = (direction: 'prev' | 'next' | number) => {
     if (currentStylesList.length === 0) return;
     
     let newIndex = selectedStyleIndex;
-    if (direction === 'prev') {
+    
+    if (typeof direction === 'number') {
+      newIndex = direction;
+    } else if (direction === 'prev') {
       newIndex = selectedStyleIndex > 0 ? selectedStyleIndex - 1 : currentStylesList.length - 1;
     } else {
       newIndex = selectedStyleIndex < currentStylesList.length - 1 ? selectedStyleIndex + 1 : 0;
     }
-    setSelectedStyleIndex(newIndex);
+    
+    // Ensure index is valid
+    if (newIndex >= 0 && newIndex < currentStylesList.length) {
+      setSelectedStyleIndex(newIndex);
+    }
   };
+
+  // Handle page change
+  const handlePageChange = (newPage: number) => {
+    setPage(newPage);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const totalPages = Math.ceil(currentStylesList.length / ITEMS_PER_PAGE);
 
   // Close modal
   const handleCloseModal = () => {
@@ -132,14 +147,45 @@ export function HomePage() {
           <div className="flex items-center justify-center py-20">
             <div className="text-red-600 text-xl">{t('errorLoading')}{error.message}</div>
           </div>
-        ) : activeTab === 'all' ? (
-          <AllGrid styles={filteredStyles} onImageClick={handleImageClick} />
         ) : (
-          <AZGrid 
-            groupedStyles={groupedStyles} 
-            selectedLetter={selectedLetter}
-            onImageClick={handleImageClick}
-          />
+          <>
+            {activeTab === 'all' ? (
+              <AllGrid styles={paginatedStyles} onImageClick={handleImageClick} />
+            ) : (
+              <AZGrid 
+                groupedStyles={paginatedGroupedStyles} 
+                selectedLetter={selectedLetter}
+                onImageClick={handleImageClick}
+              />
+            )}
+
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+              <div className="flex justify-center items-center gap-4 py-8 mt-4">
+                <button
+                  onClick={() => handlePageChange(page - 1)}
+                  disabled={page === 1}
+                  className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                  </svg>
+                </button>
+                <span className="text-gray-600 font-medium">
+                  {page} / {totalPages}
+                </span>
+                <button
+                  onClick={() => handlePageChange(page + 1)}
+                  disabled={page === totalPages}
+                  className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                  </svg>
+                </button>
+              </div>
+            )}
+          </>
         )}
       </div>
       <Footer />

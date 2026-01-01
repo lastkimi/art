@@ -1,7 +1,7 @@
 export const translations = {
   en: {
     // Header
-    siteTitle: 'Art Styles Gallery',
+    siteTitle: 'Art Styles Gallery - 艺术风格画廊',
     searchPlaceholder: 'Search artists...',
     
     // Tabs
@@ -13,6 +13,8 @@ export const translations = {
     nameCopied: 'Artist name copied to clipboard',
     promptCopied: 'Prompt copied',
     clickToCopy: 'Click to copy',
+    shareTitle: '{name} - Art Styles Gallery',
+    shareText: 'Check out {name}\'s art style on Art Styles Gallery',
     examplePrompts: 'Example Prompts',
     examplePrompt1En: 'a portrait of a character in a scenic environment by {name}',
     examplePrompt1Zh: '{name} 风格的户外场景的肖像画',
@@ -29,7 +31,7 @@ export const translations = {
   },
   zh: {
     // Header
-    siteTitle: '艺术风格画廊',
+    siteTitle: '艺术风格画廊 - Art Styles Gallery',
     searchPlaceholder: '搜索艺术家...',
     
     // Tabs
@@ -41,6 +43,8 @@ export const translations = {
     nameCopied: '艺术家名称已复制到剪贴板',
     promptCopied: '提示词已复制',
     clickToCopy: '点击复制',
+    shareTitle: '{name} - 艺术风格画廊',
+    shareText: '在艺术风格画廊查看 {name} 的风格',
     examplePrompts: '示例提示词',
     examplePrompt1En: 'a portrait of a character in a scenic environment by {name}',
     examplePrompt1Zh: '{name} 风格的户外场景的肖像画',

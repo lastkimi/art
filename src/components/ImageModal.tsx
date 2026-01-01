@@ -95,8 +95,8 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
     
     const url = window.location.origin + getArtistUrl(style.name);
     const shareData = {
-      title: `${style.name} - Art Styles Gallery`,
-      text: `Check out ${style.name}'s art style`,
+      title: t('shareTitle').replace('{name}', style.name),
+      text: t('shareText').replace('{name}', style.name),
       url: url,
     };
 
@@ -116,22 +116,6 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
   };
 
   // Handle random artist navigation
-  const handleRandom = () => {
-    if (stylesList.length <= 1) return;
-    let randomIndex = Math.floor(Math.random() * stylesList.length);
-    // Ensure we don't pick the same artist
-    while (randomIndex === currentIndex) {
-      randomIndex = Math.floor(Math.random() * stylesList.length);
-    }
-    // We need to navigate to that index. But onNavigate only supports next/prev.
-    // The parent component controls currentIndex. We might need a new prop onJumpTo(index).
-    // Or we can cheat if we don't have onJumpTo... But we don't.
-    // Wait, onNavigate is simple 'prev' | 'next'.
-    // User asked for "Random Artist Button".
-    // I need to update ImageModalProps to accept `onRandom` or modify `onNavigate`.
-    // Let's check HomePage.tsx usage of ImageModal.
-  };
-
   const handleRandom = () => {
     if (stylesList.length <= 1) return;
     let randomIndex = Math.floor(Math.random() * stylesList.length);

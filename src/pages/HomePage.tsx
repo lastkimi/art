@@ -21,8 +21,6 @@ export function HomePage() {
   const [selectedLetter, setSelectedLetter] = useState<string | null>(null);
   const [selectedStyleIndex, setSelectedStyleIndex] = useState<number>(-1);
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [page, setPage] = useState(1);
-  const ITEMS_PER_PAGE = 100;
 
   // Filter styles by search query
   const filteredStyles = useMemo(() => {
@@ -54,26 +52,10 @@ export function HomePage() {
     }
   }, [activeTab, filteredStyles, selectedLetter]);
 
-  // Reset page when filters change
-  useMemo(() => {
-    setPage(1);
-  }, [searchQuery, activeTab, selectedLetter]);
-
-  // Get paginated styles
-  const paginatedStyles = useMemo(() => {
-    const startIndex = (page - 1) * ITEMS_PER_PAGE;
-    return currentStylesList.slice(startIndex, startIndex + ITEMS_PER_PAGE);
-  }, [currentStylesList, page]);
-
-  // Group styles by letter for A-Z view (paginated)
-  const paginatedGroupedStyles = useMemo(() => {
-    return groupStylesByLetter(paginatedStyles);
-  }, [paginatedStyles]);
-
-  // Group styles by letter for A-Z view (full list for AlphaFilter letters)
-  // groupedStyles is not used for rendering grid anymore, paginatedGroupedStyles is used.
-  // But we need full list grouped for something? No, AlphaFilter uses availableLetters which uses filteredStyles.
-  // So groupedStyles is indeed unused.
+  // Group styles by letter for A-Z view
+  const groupedStyles = useMemo(() => {
+    return groupStylesByLetter(currentStylesList);
+  }, [currentStylesList]);
   
   // Get available letters for filter
   const availableLetters = useMemo(() => {
@@ -117,13 +99,9 @@ export function HomePage() {
     }
   };
 
-  // Handle page change
-  const handlePageChange = (newPage: number) => {
-    setPage(newPage);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const totalPages = Math.ceil(currentStylesList.length / ITEMS_PER_PAGE);
+  // Handle page change removed
+  // const handlePageChange = ...
+  // const totalPages = ...
 
   // Close modal
   const handleCloseModal = () => {
@@ -168,40 +146,13 @@ export function HomePage() {
         ) : (
           <>
             {activeTab === 'all' ? (
-              <AllGrid styles={paginatedStyles} onImageClick={handleImageClick} />
+              <AllGrid styles={currentStylesList} onImageClick={handleImageClick} />
             ) : (
               <AZGrid 
-                groupedStyles={paginatedGroupedStyles} 
+                groupedStyles={groupedStyles} 
                 selectedLetter={selectedLetter}
                 onImageClick={handleImageClick}
               />
-            )}
-
-            {/* Pagination Controls */}
-            {totalPages > 1 && (
-              <div className="flex justify-center items-center gap-4 py-8 mt-4">
-                <button
-                  onClick={() => handlePageChange(page - 1)}
-                  disabled={page === 1}
-                  className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                  </svg>
-                </button>
-                <span className="text-gray-600 font-medium">
-                  {page} / {totalPages}
-                </span>
-                <button
-                  onClick={() => handlePageChange(page + 1)}
-                  disabled={page === totalPages}
-                  className="px-4 py-2 border border-gray-300 rounded-md disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-50 transition-colors"
-                >
-                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                  </svg>
-                </button>
-              </div>
             )}
           </>
         )}

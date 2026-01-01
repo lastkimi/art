@@ -250,7 +250,7 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
       >
         <div
           ref={containerRef}
-          className="relative max-w-7xl max-h-[90vh] w-full mx-4 flex flex-col"
+          className="relative max-w-7xl max-h-[85vh] w-[90vw] md:w-full md:mx-4 flex flex-col my-8" // Increased margins for mobile (w-[90vw], my-8)
           onClick={(e) => e.stopPropagation()}
         >
           {/* Close button */}

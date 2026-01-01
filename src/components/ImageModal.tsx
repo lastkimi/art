@@ -64,14 +64,14 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
   // Auto-rotate images
   useEffect(() => {
     if (!style?.imageUrl2 && !style?.proxyImageUrl2) return;
-    if (isPaused) return;
+    if (isPaused || showZoomModal) return;
 
     const interval = setInterval(() => {
       setCurrentImageIndex((prev) => (prev === 0 ? 1 : 0));
     }, 3000);
     
     return () => clearInterval(interval);
-  }, [style, currentImageIndex, isPaused]);
+  }, [style, currentImageIndex, isPaused, showZoomModal]);
 
   const handleCopy = (text: string, isName: boolean = false) => {
     navigator.clipboard.writeText(text).then(() => {
@@ -227,8 +227,9 @@ export function ImageModal({ style, stylesList, currentIndex, isOpen, onClose, o
   if (!isOpen || !style) return null;
 
   // Generate fallback URLs
-  const wsrvUrl = `https://wsrv.nl/?url=${encodeURIComponent(style.imageUrl)}`;
-  const fallbacks = [wsrvUrl, style.imageUrl];
+  const isLocalImage = style.imageUrl.startsWith('/data/images/');
+  const wsrvUrl = !isLocalImage ? `https://wsrv.nl/?url=${encodeURIComponent(style.imageUrl)}` : '';
+  const fallbacks = isLocalImage ? [style.imageUrl] : [wsrvUrl, style.imageUrl];
 
   // Generate example prompts (both languages)
   const examplePrompt1En = t('examplePrompt1En').replace('{name}', style.name);
